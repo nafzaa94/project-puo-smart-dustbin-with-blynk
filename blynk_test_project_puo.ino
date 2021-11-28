@@ -7,6 +7,10 @@
 
 Servo myservo;
 
+int irsensor = 4; // irsensor
+
+int valueirsensor = 0;
+
 int totallevel = 22;
 
 int valuelevel = 0;
@@ -15,7 +19,7 @@ int valueultrasonic = 0;
 
 int state = 0;
 
-HCSR04 hc(4,new int[2]{5,6},2);
+HCSR04 hc(5,6); // (trig, echo)
 
 #define BLYNK_PRINT Serial
 
@@ -45,21 +49,21 @@ BlynkTimer timer;
 
 void myTimerEvent()
 {
+  valueirsensor = digitalRead(irsensor);
+  
   Serial.print("sensor 1 = "); // untuk bukak pintu
-  Serial.print(hc.dist(0));
-  Serial.print(" sensor 2 = "); // untuk detect level sampah
-  Serial.println(hc.dist(1));
+  Serial.println(hc.dist());
 
-  if (hc.dist(0) <= 15){
+  if (valueirsensor == LOW){
     Serial.println ("pintu bukak");
     myservo.write(100);
     }
   else {
-    Serial.println ("pintu tutup");
+    Serial.println("pintu tutup");
     myservo.write(0);
     }
 
-  valueultrasonic = hc.dist(1);
+  valueultrasonic = hc.dist();
 
   valuelevel = totallevel - valueultrasonic;
 
@@ -81,6 +85,7 @@ void setup()
 {
   // Debug console
   Serial.begin(9600);
+  pinMode(irsensor, INPUT);
   myservo.attach(9);
   myservo.write(0);
   delay(10);
